@@ -16,7 +16,11 @@ Flask = "==1.1.1"
 Jinja2 = "==2.10.1"
 MarkupSafe = "==1.1.1"
 Werkzeug = "==0.15.5"
-requests = "*"
+requests = "==2.22.0"
+certifi = "==2019.6.16"
+chardet = "==3.0.4"
+idna = "==2.8"
+urllib3 = "==1.25.3"
 
 [requires]
 python_version = "3.7"

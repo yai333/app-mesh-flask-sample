@@ -19,13 +19,12 @@ class Ping(Resource):
 
 class TodoList(Resource):
     def get(self):
-        print(f'{API_ENDPOINT}/todos')
         r = requests.get(url = f'{API_ENDPOINT}/todos')
         return r.json()
 
     def post(self):
         args = parser.parse_args()
-        r = requests.post(url, json=args)
+        r = requests.post(url = f'{API_ENDPOINT}/todos', json=args)
         return r.json(), 201
 
 class Todo(Resource):

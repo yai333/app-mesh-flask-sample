@@ -28,22 +28,21 @@ class Ping(Resource):
 class Todo(Resource):
     def get(self, todo_id):
         abort_if_todo_doesnt_exist(todo_id)
-        return TODOS[todo_id]
+        return {"todo":TODOS[todo_id], "version":API_VERSION}
 
     def delete(self, todo_id):
         abort_if_todo_doesnt_exist(todo_id)
         del TODOS[todo_id]
-        return '', 204
+        return {"response": "ok", "version":API_VERSION}, 204
 
     def put(self, todo_id):
         args = parser.parse_args()
         task = {'task': args['task']}
         TODOS[todo_id] = task
-        return task, 201
+        return {"todo":task, "version":API_VERSION}, 201
 
 class TodoList(Resource):
     def get(self):
-        
         return {"todos":TODOS, "version":API_VERSION}
 
     def post(self):
@@ -51,7 +50,7 @@ class TodoList(Resource):
         todo_id = int(max(TODOS.keys()).lstrip('todo')) + 1
         todo_id = 'todo%i' % todo_id
         TODOS[todo_id] = {'task': args['task']}
-        return TODOS[todo_id], 201
+        return {"todo":TODOS[todo_id], "version":API_VERSION}, 201
 
 
 api.add_resource(TodoList, '/todos')
@@ -60,4 +59,4 @@ api.add_resource(Ping, '/ping')
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=3000)
