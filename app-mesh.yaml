@@ -1,0 +1,125 @@
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: Environment name that joins all the stacks
+    Default: flask
+
+  ServicesDomain:
+    Type: String
+    Description: DNS namespace used by services e.g. default.svc.cluster.local
+    Default: flask.sample
+
+  AppMeshMeshName:
+    Type: String
+    Description: Name of mesh
+
+Resources:
+  Mesh:
+    Type: AWS::AppMesh::Mesh
+    Properties:
+      MeshName: !Ref AppMeshMeshName
+
+  ApiV1VirtualNode:
+    Type: AWS::AppMesh::VirtualNode
+    Properties:
+      MeshName: !GetAtt Mesh.MeshName
+      VirtualNodeName: api-v1-vn
+      Spec:
+        Listeners:
+          - PortMapping:
+              Port: 3000
+              Protocol: http
+            HealthCheck:
+              Protocol: http
+              Path: "/ping"
+              HealthyThreshold: 2
+              UnhealthyThreshold: 2
+              TimeoutMillis: 2000
+              IntervalMillis: 5000
+        ServiceDiscovery:
+          DNS:
+            Hostname: !Sub "api-v1.${ServicesDomain}"
+
+  ApiV2VirtualNode:
+    Type: AWS::AppMesh::VirtualNode
+    Properties:
+      MeshName: !GetAtt Mesh.MeshName
+      VirtualNodeName: api-v2-vn
+      Spec:
+        Listeners:
+          - PortMapping:
+              Port: 3000
+              Protocol: http
+            HealthCheck:
+              Protocol: http
+              Path: "/ping"
+              HealthyThreshold: 2
+              UnhealthyThreshold: 2
+              TimeoutMillis: 2000
+              IntervalMillis: 5000
+        ServiceDiscovery:
+          DNS:
+            Hostname: !Sub "api-v2.${ServicesDomain}"
+
+  ApiVirtualRouter:
+    Type: AWS::AppMesh::VirtualRouter
+    Properties:
+      MeshName: !GetAtt Mesh.MeshName
+      VirtualRouterName: api-vr
+      Spec:
+        Listeners:
+          - PortMapping:
+              Port: 3000
+              Protocol: http
+
+  ApiRoute:
+    Type: AWS::AppMesh::Route
+    DependsOn:
+      - ApiVirtualRouter
+      - ApiV1VirtualNode
+      - ApiV2VirtualNode
+    Properties:
+      MeshName: !Ref AppMeshMeshName
+      VirtualRouterName: api-vr
+      RouteName: api-route
+      Spec:
+        HttpRoute:
+          Action:
+            WeightedTargets:
+              - VirtualNode: api-v1-vn
+                Weight: 2
+              - VirtualNode: api-v2-vn
+                Weight: 1
+          Match:
+            Prefix: "/"
+
+  ApiVirtualService:
+    Type: AWS::AppMesh::VirtualService
+    DependsOn:
+      - ApiVirtualRouter
+    Properties:
+      MeshName: !GetAtt Mesh.MeshName
+      VirtualServiceName: !Sub "api.${ServicesDomain}"
+      Spec:
+        Provider:
+          VirtualRouter:
+            VirtualRouterName: api-vr
+
+  ApiGatewayVirtualNode:
+    Type: AWS::AppMesh::VirtualNode
+    DependsOn:
+      - ApiVirtualService
+    Properties:
+      MeshName: !GetAtt Mesh.MeshName
+      VirtualNodeName: gateway-vn
+      Spec:
+        Listeners:
+          - PortMapping:
+              Port: 3000
+              Protocol: http
+        ServiceDiscovery:
+          DNS:
+            Hostname: !Sub "gateway.${ServicesDomain}"
+        Backends:
+          - VirtualService:
+              VirtualServiceName: !Sub "api.${ServicesDomain}"

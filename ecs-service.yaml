@@ -1,0 +1,118 @@
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: Environment name that joins all the stacks
+    Default: flask
+
+  AppMeshMeshName:
+    Type: String
+    Description: Name of mesh
+    Default: flask-mesh
+
+  ECSServicesDomain:
+    Type: String
+    Description: DNS namespace used by services e.g. default.svc.cluster.local
+    Default: flask.sample
+
+  GatewayTaskDefinition:
+    Type: String
+    Description: Task definition for ColorGateway Service
+
+  ApiV1TaskDefinition:
+    Type: String
+    Description: Task definition for ColorTeller White Service
+
+  ApiV2TaskDefinition:
+    Type: String
+    Description: Task definition for ColorTeller Red Service
+
+Resources:
+  ApiV1ServiceDiscoveryRecord:
+    Type: "AWS::ServiceDiscovery::Service"
+    Properties:
+      Name: "api-v1"
+      DnsConfig:
+        NamespaceId:
+          "Fn::ImportValue": !Sub "${EnvironmentName}:ECSServiceDiscoveryNamespace"
+        DnsRecords:
+          - Type: A
+            TTL: 300
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+
+  ApiV1Service:
+    Type: "AWS::ECS::Service"
+    Properties:
+      Cluster:
+        "Fn::ImportValue": !Sub "${EnvironmentName}:ECSCluster"
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: 1
+      LaunchType: EC2
+      ServiceRegistries:
+        - RegistryArn:
+            "Fn::GetAtt": ApiV1ServiceDiscoveryRecord.Arn
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:ECSServiceSecurityGroup"
+          Subnets:
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PrivateSubnet1"
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PrivateSubnet2"
+      TaskDefinition: { Ref: ApiV1TaskDefinition }
+
+  ApiV2ServiceDiscoveryRecord:
+    Type: "AWS::ServiceDiscovery::Service"
+    Properties:
+      Name: "api-v2"
+      DnsConfig:
+        NamespaceId:
+          "Fn::ImportValue": !Sub "${EnvironmentName}:ECSServiceDiscoveryNamespace"
+        DnsRecords:
+          - Type: A
+            TTL: 300
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+
+  GatewayServiceDiscoveryRecord:
+    Type: "AWS::ServiceDiscovery::Service"
+    Properties:
+      Name: "gateway"
+      DnsConfig:
+        NamespaceId:
+          "Fn::ImportValue": !Sub "${EnvironmentName}:ECSServiceDiscoveryNamespace"
+        DnsRecords:
+          - Type: A
+            TTL: 300
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+
+  GatewayService:
+    Type: "AWS::ECS::Service"
+    Properties:
+      Cluster:
+        "Fn::ImportValue": !Sub "${EnvironmentName}:ECSCluster"
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: 1
+      LaunchType: EC2
+      ServiceRegistries:
+        - RegistryArn:
+            "Fn::GetAtt": GatewayServiceDiscoveryRecord.Arn
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:ECSServiceSecurityGroup"
+          Subnets:
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PrivateSubnet1"
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PrivateSubnet2"
+      TaskDefinition: { Ref: GatewayTaskDefinition }
+      LoadBalancers:
+        - ContainerName: app
+          ContainerPort: 3000
+          TargetGroupArn:
+            "Fn::ImportValue": !Sub "${EnvironmentName}:TargetGroupPublic"

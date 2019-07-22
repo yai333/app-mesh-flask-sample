@@ -1,0 +1,161 @@
+{
+  "family": "api-v2",
+  "proxyConfiguration": {
+    "type": "APPMESH",
+    "containerName": "envoy",
+    "properties": [
+      {
+        "name": "IgnoredUID",
+        "value": "1337"
+      },
+      {
+        "name": "ProxyIngressPort",
+        "value": "15000"
+      },
+      {
+        "name": "ProxyEgressPort",
+        "value": "15001"
+      },
+      {
+        "name": "AppPorts",
+        "value": "9080"
+      },
+      {
+        "name": "EgressIgnoredIPs",
+        "value": "169.254.170.2,169.254.169.254"
+      }
+    ]
+  },
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com/flask-api",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "VERSION",
+          "value": "2"
+        },
+        {
+          "name": "SERVER_PORT",
+          "value": "3000"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
+          "awslogs-region": "ap-southeast-2",
+          "awslogs-stream-prefix": "api-v2"
+        }
+      },
+      "essential": true,
+      "dependsOn": [
+        {
+          "containerName": "envoy",
+          "condition": "HEALTHY"
+        }
+      ]
+    },
+    {
+      "name": "envoy",
+      "image": "111345817488.dkr.ecr.us-west-2.amazonaws.com/aws-appmesh-envoy:v1.9.1.0-prod",
+      "user": "1337",
+      "essential": true,
+      "ulimits": [
+        {
+          "name": "nofile",
+          "hardLimit": 15000,
+          "softLimit": 15000
+        }
+      ],
+      "portMappings": [
+        {
+          "containerPort": 9901,
+          "hostPort": 9901,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": 15000,
+          "hostPort": 15000,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": 15001,
+          "hostPort": 15001,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "APPMESH_VIRTUAL_NODE_NAME",
+          "value": ""
+        },
+        {
+          "name": "ENVOY_LOG_LEVEL",
+          "value": "debug"
+        },
+        {
+          "name": "ENABLE_ENVOY_XRAY_TRACING",
+          "value": "1"
+        },
+        {
+          "name": "ENABLE_ENVOY_STATS_TAGS",
+          "value": "1"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
+          "awslogs-region": "ap-southeast-2",
+          "awslogs-stream-prefix": "api-v2-envoy"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -s http://localhost:9901/server_info | grep state | grep -q LIVE"
+        ],
+        "interval": 5,
+        "timeout": 2,
+        "retries": 3
+      }
+    },
+    {
+      "name": "xray-daemon",
+      "image": "amazon/aws-xray-daemon",
+      "user": "1337",
+      "essential": true,
+      "cpu": 32,
+      "memoryReservation": 256,
+      "portMappings": [
+        {
+          "hostPort": 2000,
+          "containerPort": 2000,
+          "protocol": "udp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
+          "awslogs-region": "ap-southeast-2",
+          "awslogs-stream-prefix": "api-v2-xray"
+        }
+      }
+    }
+  ],
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/flask-sample-TaskIamRole-P34FJTNYI3CF",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/flask-sample-TaskExecutionIamRole-LZ4UK35YZU76",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512"
+}
