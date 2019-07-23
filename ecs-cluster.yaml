@@ -136,6 +136,7 @@ Resources:
   TargetGroupPublic:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
+      TargetType: ip
       HealthCheckIntervalSeconds: 6
       HealthCheckPath: /ping
       HealthCheckProtocol: HTTP
@@ -196,6 +197,10 @@ Resources:
                   - "ecr:GetAuthorizationToken"
                   - "ecr:BatchCheckLayerAvailability"
                   - "ecr:GetDownloadUrlForLayer"
+                  - "ecr:GetRepositoryPolicy"
+                  - "ecr:DescribeRepositories"
+                  - "ecr:ListImages"
+                  - "ecr:DescribeImages"
                   - "ecr:BatchGetImage"
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
@@ -229,6 +234,11 @@ Outputs:
     Value: !Ref ECSServiceLogGroup
     Export:
       Name: !Sub "${EnvironmentName}:ECSServiceLogGroup"
+  PublicLoadBalancerSG:
+    Description: Log group for public LoadBalancer
+    Value: !Ref PublicLoadBalancerSG
+    Export:
+      Name: !Sub "${EnvironmentName}:PublicLoadBalancerSG"
   FargateContainerSecurityGroup:
     Description: Security group to be used by all services in the cluster
     Value: !Ref FargateContainerSecurityGroup

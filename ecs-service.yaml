@@ -17,16 +17,34 @@ Parameters:
   GatewayTaskDefinition:
     Type: String
     Description: Task definition for ColorGateway Service
+    Default: gateway
 
   ApiV1TaskDefinition:
     Type: String
     Description: Task definition for ColorTeller White Service
+    Default: api-v1
 
   ApiV2TaskDefinition:
     Type: String
     Description: Task definition for ColorTeller Red Service
+    Default: api-v2
+
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 10.0.0.0/16
 
 Resources:
+  ECSServiceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Security group for the service"
+      VpcId:
+        "Fn::ImportValue": !Sub "${EnvironmentName}:VPCId"
+      SecurityGroupIngress:
+        - CidrIp: !Ref VpcCIDR
+          IpProtocol: -1
+
   ApiV1ServiceDiscoveryRecord:
     Type: "AWS::ServiceDiscovery::Service"
     Properties:
@@ -49,7 +67,7 @@ Resources:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
       DesiredCount: 1
-      LaunchType: EC2
+      LaunchType: FARGATE
       ServiceRegistries:
         - RegistryArn:
             "Fn::GetAtt": ApiV1ServiceDiscoveryRecord.Arn
@@ -57,10 +75,10 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
           SecurityGroups:
-            - "Fn::ImportValue": !Sub "${EnvironmentName}:ECSServiceSecurityGroup"
+            - !Ref ECSServiceSecurityGroup
           Subnets:
-            - "Fn::ImportValue": !Sub "${EnvironmentName}:PrivateSubnet1"
-            - "Fn::ImportValue": !Sub "${EnvironmentName}:PrivateSubnet2"
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PublicSubnetOne"
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PublicSubnetTwo"
       TaskDefinition: { Ref: ApiV1TaskDefinition }
 
   ApiV2ServiceDiscoveryRecord:
@@ -89,6 +107,29 @@ Resources:
       HealthCheckCustomConfig:
         FailureThreshold: 1
 
+  ApiV2Service:
+    Type: "AWS::ECS::Service"
+    Properties:
+      Cluster:
+        "Fn::ImportValue": !Sub "${EnvironmentName}:ECSCluster"
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: 1
+      LaunchType: FARGATE
+      ServiceRegistries:
+        - RegistryArn:
+            "Fn::GetAtt": ApiV2ServiceDiscoveryRecord.Arn
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref ECSServiceSecurityGroup
+          Subnets:
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PublicSubnetOne"
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PublicSubnetTwo"
+      TaskDefinition: { Ref: ApiV2TaskDefinition }
+
   GatewayService:
     Type: "AWS::ECS::Service"
     Properties:
@@ -98,7 +139,7 @@ Resources:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
       DesiredCount: 1
-      LaunchType: EC2
+      LaunchType: FARGATE
       ServiceRegistries:
         - RegistryArn:
             "Fn::GetAtt": GatewayServiceDiscoveryRecord.Arn
@@ -106,10 +147,10 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
           SecurityGroups:
-            - "Fn::ImportValue": !Sub "${EnvironmentName}:ECSServiceSecurityGroup"
+            - !Ref ECSServiceSecurityGroup
           Subnets:
-            - "Fn::ImportValue": !Sub "${EnvironmentName}:PrivateSubnet1"
-            - "Fn::ImportValue": !Sub "${EnvironmentName}:PrivateSubnet2"
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PublicSubnetOne"
+            - "Fn::ImportValue": !Sub "${EnvironmentName}:PublicSubnetTwo"
       TaskDefinition: { Ref: GatewayTaskDefinition }
       LoadBalancers:
         - ContainerName: app

@@ -7,6 +7,8 @@ docker run -p 3000:3000 -e API_ENDPOINT=http://localhost --rm flask-gateway
 
 docker tag flask-gateway \$( aws ecr create-repository --repository-name flask-gateway --region ap-southeast-2 --profile yiai --query '[repository.repositoryUri]' --output text)
 
+aws ecs register-task-definition --cli-input-json file://task_definition_gateway.json --profile yiai --region ap-southeast-2
+
 docker build -t flask-api .
 docker run -p 3000:3000 -e API_VERSION=1 --rm flask-api
 

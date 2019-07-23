@@ -29,7 +29,7 @@
   "containerDefinitions": [
     {
       "name": "app",
-      "image": "ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com/flask-api",
+      "image": "820412658253.dkr.ecr.ap-southeast-2.amazonaws.com/flask-api",
       "portMappings": [
         {
           "containerPort": 3000,
@@ -95,7 +95,7 @@
       "environment": [
         {
           "name": "APPMESH_VIRTUAL_NODE_NAME",
-          "value": ""
+          "value": "mesh/flask-mesh/virtualNode/api-v1-vn"
         },
         {
           "name": "ENVOY_LOG_LEVEL",
@@ -152,9 +152,9 @@
       }
     }
   ],
-  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/flask-sample-TaskIamRole-P34FJTNYI3CF",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/flask-sample-TaskExecutionIamRole-LZ4UK35YZU76",
-  "requiresCompatibilities": ["FARGATE"],
+  "taskRoleArn": "arn:aws:iam::820412658253:role/flask-sample-TaskIamRole-P34FJTNYI3CF",
+  "executionRoleArn": "arn:aws:iam::820412658253:role/flask-sample-TaskExecutionIamRole-LZ4UK35YZU76",
+  "requiresCompatibilities": ["FARGATE", "EC2"],
   "networkMode": "awsvpc",
   "cpu": "256",
   "memory": "512"

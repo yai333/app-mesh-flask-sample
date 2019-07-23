@@ -5,6 +5,7 @@ import os
 import json
 
 API_ENDPOINT =  os.environ['API_ENDPOINT']
+SERVER_PORT =  os.environ['SERVER_PORT']
 
 app = Flask(__name__)
 api = Api(app)
@@ -19,27 +20,27 @@ class Ping(Resource):
 
 class TodoList(Resource):
     def get(self):
-        r = requests.get(url = f'{API_ENDPOINT}/todos')
+        r = requests.get(url = '%s/todos'%API_ENDPOINT%SERVER_PORT)
         return r.json()
 
     def post(self):
         args = parser.parse_args()
-        r = requests.post(url = f'{API_ENDPOINT}/todos', json=args)
+        r = requests.post(url = '%s:%d/todos'%API_ENDPOINT%SERVER_PORT, json=args)
         return r.json(), 201
 
 class Todo(Resource):
     def get(self, todo_id):
-        r = requests.get(url = f'{API_ENDPOINT}/todos/{todo_id}')
+        r = requests.get(url = '%s:%d/todos/%s'%API_ENDPOINT%SERVER_PORT%todo_id)
         return r.json()
 
     def delete(self, todo_id):
-        r = requests.delete(url = f'{API_ENDPOINT}/todos/{todo_id}')
+        r = requests.delete(url = '%s:%d/todos/%s'%API_ENDPOINT%SERVER_PORT%todo_id)
         return r.json(), 204
 
     def put(self, todo_id):
         args = parser.parse_args()
         task = {'task': args['task']}
-        r = requests.put(url = f'{API_ENDPOINT}/todos/{todo_id}', json=task)
+        r = requests.put(url = '%s:%d/todos/%s'%API_ENDPOINT%SERVER_PORT%todo_id, json=task)
         return r.json(), 201
 
 api.add_resource(TodoList, '/todos')

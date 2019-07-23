@@ -1,5 +1,5 @@
 {
-  "family": "api-v2",
+  "family": "gateway",
   "proxyConfiguration": {
     "type": "APPMESH",
     "containerName": "envoy",
@@ -29,7 +29,7 @@
   "containerDefinitions": [
     {
       "name": "app",
-      "image": "820412658253.dkr.ecr.ap-southeast-2.amazonaws.com/flask-api",
+      "image": "820412658253.dkr.ecr.ap-southeast-2.amazonaws.com/flask-gateway",
       "portMappings": [
         {
           "containerPort": 3000,
@@ -39,8 +39,8 @@
       ],
       "environment": [
         {
-          "name": "VERSION",
-          "value": "2"
+          "name": "API_ENDPOINT",
+          "value": "api.flask.sample"
         },
         {
           "name": "SERVER_PORT",
@@ -52,7 +52,7 @@
         "options": {
           "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
           "awslogs-region": "ap-southeast-2",
-          "awslogs-stream-prefix": "api-v2"
+          "awslogs-stream-prefix": "gateway"
         }
       },
       "essential": true,
@@ -95,7 +95,7 @@
       "environment": [
         {
           "name": "APPMESH_VIRTUAL_NODE_NAME",
-          "value": "mesh/flask-mesh/virtualNode/api-v1-vn"
+          "value": "mesh/flask-mesh/virtualNode/gateway-vn"
         },
         {
           "name": "ENVOY_LOG_LEVEL",
@@ -115,7 +115,7 @@
         "options": {
           "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
           "awslogs-region": "ap-southeast-2",
-          "awslogs-stream-prefix": "api-v2-envoy"
+          "awslogs-stream-prefix": "gateway-envoy"
         }
       },
       "healthCheck": {
@@ -147,7 +147,7 @@
         "options": {
           "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
           "awslogs-region": "ap-southeast-2",
-          "awslogs-stream-prefix": "api-v2-xray"
+          "awslogs-stream-prefix": "gateway-xray"
         }
       }
     }
