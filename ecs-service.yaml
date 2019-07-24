@@ -73,7 +73,7 @@ Resources:
             "Fn::GetAtt": ApiV1ServiceDiscoveryRecord.Arn
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ECSServiceSecurityGroup
           Subnets:
@@ -122,7 +122,7 @@ Resources:
             "Fn::GetAtt": ApiV2ServiceDiscoveryRecord.Arn
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ECSServiceSecurityGroup
           Subnets:
@@ -145,7 +145,7 @@ Resources:
             "Fn::GetAtt": GatewayServiceDiscoveryRecord.Arn
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ECSServiceSecurityGroup
           Subnets:

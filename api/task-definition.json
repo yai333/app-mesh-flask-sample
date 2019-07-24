@@ -1,5 +1,5 @@
 {
-  "family": "gateway",
+  "family": $API_FAMILY,
   "proxyConfiguration": {
     "type": "APPMESH",
     "containerName": "envoy",
@@ -29,7 +29,7 @@
   "containerDefinitions": [
     {
       "name": "app",
-      "image": "820412658253.dkr.ecr.ap-southeast-2.amazonaws.com/flask-gateway",
+      "image": "820412658253.dkr.ecr.ap-southeast-2.amazonaws.com/flask-api",
       "portMappings": [
         {
           "containerPort": 3000,
@@ -39,8 +39,8 @@
       ],
       "environment": [
         {
-          "name": "API_ENDPOINT",
-          "value": "api.flask.sample"
+          "name": "VERSION",
+          "value": $VERSION
         },
         {
           "name": "SERVER_PORT",
@@ -50,9 +50,9 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
+          "awslogs-group": $SERVICE_LOG_GROUP,
           "awslogs-region": "ap-southeast-2",
-          "awslogs-stream-prefix": "gateway"
+          "awslogs-stream-prefix": $LOG_STREAM_PREFIX
         }
       },
       "essential": true,
@@ -95,7 +95,7 @@
       "environment": [
         {
           "name": "APPMESH_VIRTUAL_NODE_NAME",
-          "value": "mesh/flask-mesh/virtualNode/gateway-vn"
+          "value": $VIRTUAL_NODE
         },
         {
           "name": "ENVOY_LOG_LEVEL",
@@ -113,9 +113,9 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
+          "awslogs-group": $SERVICE_LOG_GROUP,
           "awslogs-region": "ap-southeast-2",
-          "awslogs-stream-prefix": "gateway-envoy"
+          "awslogs-stream-prefix": $LOG_STREAM_PREFIX
         }
       },
       "healthCheck": {
@@ -145,15 +145,15 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "flask-sample-ECSServiceLogGroup-7ADTOQJ9XIMN",
+          "awslogs-group": $SERVICE_LOG_GROUP,
           "awslogs-region": "ap-southeast-2",
-          "awslogs-stream-prefix": "gateway-xray"
+          "awslogs-stream-prefix": $LOG_STREAM_PREFIX
         }
       }
     }
   ],
-  "taskRoleArn": "arn:aws:iam::820412658253:role/flask-sample-TaskIamRole-P34FJTNYI3CF",
-  "executionRoleArn": "arn:aws:iam::820412658253:role/flask-sample-TaskExecutionIamRole-LZ4UK35YZU76",
+  "taskRoleArn": $TASK_ROLE_ARN,
+  "executionRoleArn": $EXECUTION_ROLE_ARN,
   "requiresCompatibilities": ["FARGATE", "EC2"],
   "networkMode": "awsvpc",
   "cpu": "256",
