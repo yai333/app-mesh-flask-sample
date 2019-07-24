@@ -40,7 +40,7 @@
       "environment": [
         {
           "name": "API_ENDPOINT",
-          "value": "api.flask.sample"
+          "value": "http://api.flask.sample"
         },
         {
           "name": "SERVER_PORT",

@@ -6,7 +6,11 @@ AWS_PROFILE="yiai"
 
 docker build -t flask-api .
 
-API_IMAGE="$( aws ecr create-repository --repository-name flask-api --region ${AWS_DEFAULT_REGION} --profile ${AWS_PROFILE} --query '[repository.repositoryUri]' --output text)"
+API_IMAGE="$( aws ecr create-repository --repository-name flask-api \
+              --region ${AWS_DEFAULT_REGION} --profile ${AWS_PROFILE} \
+              --query '[repository.repositoryUri]' --output text || aws ecr describe-repositories --repository-name flask-api \
+              --region ${AWS_DEFAULT_REGION} --profile ${AWS_PROFILE} \
+              --query '[repositories[0].repositoryUri]' --output text)"
 
 docker tag flask-api ${API_IMAGE}
 

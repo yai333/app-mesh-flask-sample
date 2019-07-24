@@ -39,7 +39,7 @@
       ],
       "environment": [
         {
-          "name": "VERSION",
+          "name": "API_VERSION",
           "value": $VERSION
         },
         {

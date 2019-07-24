@@ -17,3 +17,5 @@ docker tag flask-api \$( aws ecr create-repository --repository-name flask-api -
 aws cloudformation describe-stacks --stack-name flask-sample --profile yiai --region ap-southeast-2
 
 aws ecs register-task-definition --cli-input-json file://task_definition_v1.json --profile yiai --region ap-southeast-2
+
+aws cloudformation create-stack --stack-name flask-ecs-services --template-body file://ecs-service.yaml --profile yiai --region ap-southeast-2

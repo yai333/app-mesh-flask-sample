@@ -20,27 +20,27 @@ class Ping(Resource):
 
 class TodoList(Resource):
     def get(self):
-        r = requests.get(url = '%s/todos'%(API_ENDPOINT,ERVER_PORT))
+        r = requests.get(url = 'http://52.62.67.2:3000/todos')
         return r.json()
 
     def post(self):
         args = parser.parse_args()
-        r = requests.post(url = '%s:%d/todos'%(API_ENDPOINT,ERVER_PORT), json=args)
+        r = requests.post(url = '%s:%s/todos'%(API_ENDPOINT,SERVER_PORT), json=args)
         return r.json(), 201
 
 class Todo(Resource):
     def get(self, todo_id):
-        r = requests.get(url = '%s:%d/todos/%s'%(API_ENDPOINT,ERVER_PORT,todo_id))
+        r = requests.get(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id))
         return r.json()
 
     def delete(self, todo_id):
-        r = requests.delete(url = '%s:%d/todos/%s'%(API_ENDPOINT,ERVER_PORT,todo_id))
+        r = requests.delete(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id))
         return r.json(), 204
 
     def put(self, todo_id):
         args = parser.parse_args()
         task = {'task': args['task']}
-        r = requests.put(url = '%s:%d/todos/%s'%(API_ENDPOINT,ERVER_PORT,todo_id), json=task)
+        r = requests.put(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id), json=task)
         return r.json(), 201
 
 api.add_resource(TodoList, '/todos')

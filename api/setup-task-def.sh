@@ -33,10 +33,10 @@ v1_task_def_json=$(jq -n \
     --arg TASK_ROLE_ARN $task_role_arn \
     --arg EXECUTION_ROLE_ARN $execution_role_arn \
     --arg ENVOY_LOG_LEVEL $envoy_log_level \
-    --arg LOG_STREAM_PREFIX "api-v1" \
-    --arg API_FAMILY "api-v1" \
+    --arg LOG_STREAM_PREFIX "api" \
+    --arg API_FAMILY "api" \
     --arg VERSION "1" \
-    --arg VIRTUAL_NODE "mesh/flask-mesh/virtualNode/api-v1-vn" \
+    --arg VIRTUAL_NODE "mesh/flask-mesh/virtualNode/api-vn" \
     -f "${DIR}/task-definition.json")
 
 aws --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \

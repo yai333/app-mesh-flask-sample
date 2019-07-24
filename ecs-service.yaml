@@ -22,7 +22,7 @@ Parameters:
   ApiV1TaskDefinition:
     Type: String
     Description: Task definition for ColorTeller White Service
-    Default: api-v1
+    Default: api
 
   ApiV2TaskDefinition:
     Type: String
@@ -48,7 +48,7 @@ Resources:
   ApiV1ServiceDiscoveryRecord:
     Type: "AWS::ServiceDiscovery::Service"
     Properties:
-      Name: "api-v1"
+      Name: "api"
       DnsConfig:
         NamespaceId:
           "Fn::ImportValue": !Sub "${EnvironmentName}:ECSServiceDiscoveryNamespace"
