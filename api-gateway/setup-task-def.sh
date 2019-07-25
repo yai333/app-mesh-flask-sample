@@ -24,7 +24,9 @@ ecs_service_log_group=($(echo $cluster_stack_output \
 
 envoy_log_level="debug"
 
-GATEWAY_IMAGE="$( aws ecr describe-repositories --repository-name flask-gateway --region ${AWS_DEFAULT_REGION} --profile ${AWS_PROFILE} --query '[repositories[0].repositoryUri]' --output text)"
+GATEWAY_IMAGE="$( aws ecr describe-repositories \
+ --repository-name flask-gateway --region ${AWS_DEFAULT_REGION} \
+  --profile ${AWS_PROFILE} --query '[repositories[0].repositoryUri]' --output text)"
 
 #Gateway Task Definition
 task_def_json=$(jq -n \

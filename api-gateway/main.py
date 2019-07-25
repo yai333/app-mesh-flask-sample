@@ -20,7 +20,7 @@ class Ping(Resource):
 
 class TodoList(Resource):
     def get(self):
-        r = requests.get(url = 'http://52.62.67.2:3000/todos')
+        r = requests.get(url = '%s:%s/todos'%(API_ENDPOINT,SERVER_PORT))
         return r.json()
 
     def post(self):

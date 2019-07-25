@@ -17,17 +17,14 @@ Parameters:
   GatewayTaskDefinition:
     Type: String
     Description: Task definition for ColorGateway Service
-    Default: gateway
 
   ApiV1TaskDefinition:
     Type: String
     Description: Task definition for ColorTeller White Service
-    Default: api
 
   ApiV2TaskDefinition:
     Type: String
     Description: Task definition for ColorTeller Red Service
-    Default: api-v2
 
   VpcCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
@@ -61,6 +58,7 @@ Resources:
   ApiV1Service:
     Type: "AWS::ECS::Service"
     Properties:
+      ServiceName: "api"
       Cluster:
         "Fn::ImportValue": !Sub "${EnvironmentName}:ECSCluster"
       DeploymentConfiguration:
@@ -110,6 +108,7 @@ Resources:
   ApiV2Service:
     Type: "AWS::ECS::Service"
     Properties:
+      ServiceName: "api-v2"
       Cluster:
         "Fn::ImportValue": !Sub "${EnvironmentName}:ECSCluster"
       DeploymentConfiguration:
@@ -133,6 +132,7 @@ Resources:
   GatewayService:
     Type: "AWS::ECS::Service"
     Properties:
+      ServiceName: "gateway"
       Cluster:
         "Fn::ImportValue": !Sub "${EnvironmentName}:ECSCluster"
       DeploymentConfiguration:

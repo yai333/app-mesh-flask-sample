@@ -29,7 +29,7 @@
   "containerDefinitions": [
     {
       "name": "app",
-      "image": "820412658253.dkr.ecr.ap-southeast-2.amazonaws.com/flask-api",
+      "image": $APP_IMAGE,
       "portMappings": [
         {
           "containerPort": 3000,

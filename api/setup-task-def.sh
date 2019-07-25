@@ -24,11 +24,11 @@ ecs_service_log_group=($(echo $cluster_stack_output \
 
 envoy_log_level="debug"
 
-GATEWAY_IMAGE="$( aws ecr describe-repositories --repository-name flask-gateway --region ${AWS_DEFAULT_REGION} --profile ${AWS_PROFILE} --query '[repositories[0].repositoryUri]' --output text)"
+API_IMAGE="$( aws ecr describe-repositories --repository-name flask-api --region ${AWS_DEFAULT_REGION} --profile ${AWS_PROFILE} --query '[repositories[0].repositoryUri]' --output text)"
 
 #Api v1 Task Definition
 v1_task_def_json=$(jq -n \
-    --arg APP_IMAGE $GATEWAY_IMAGE \
+    --arg APP_IMAGE $API_IMAGE \
     --arg SERVICE_LOG_GROUP $ecs_service_log_group \
     --arg TASK_ROLE_ARN $task_role_arn \
     --arg EXECUTION_ROLE_ARN $execution_role_arn \
@@ -46,7 +46,7 @@ aws --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
 
 #Api v2 Task Definition
 v2_task_def_json=$(jq -n \
-    --arg APP_IMAGE $GATEWAY_IMAGE \
+    --arg APP_IMAGE $API_IMAGE \
     --arg SERVICE_LOG_GROUP $ecs_service_log_group \
     --arg TASK_ROLE_ARN $task_role_arn \
     --arg EXECUTION_ROLE_ARN $execution_role_arn \

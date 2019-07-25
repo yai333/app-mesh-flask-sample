@@ -12,6 +12,7 @@ Parameters:
   AppMeshMeshName:
     Type: String
     Description: Name of mesh
+    Default: flask-mesh
 
 Resources:
   Mesh:
@@ -23,7 +24,7 @@ Resources:
     Type: AWS::AppMesh::VirtualNode
     Properties:
       MeshName: !GetAtt Mesh.MeshName
-      VirtualNodeName: api-v1-vn
+      VirtualNodeName: api-vn
       Spec:
         Listeners:
           - PortMapping:
@@ -38,7 +39,7 @@ Resources:
               IntervalMillis: 5000
         ServiceDiscovery:
           DNS:
-            Hostname: !Sub "api-v1.${ServicesDomain}"
+            Hostname: !Sub "api.${ServicesDomain}"
 
   ApiV2VirtualNode:
     Type: AWS::AppMesh::VirtualNode
@@ -86,7 +87,7 @@ Resources:
         HttpRoute:
           Action:
             WeightedTargets:
-              - VirtualNode: api-v1-vn
+              - VirtualNode: api-vn
                 Weight: 2
               - VirtualNode: api-v2-vn
                 Weight: 1

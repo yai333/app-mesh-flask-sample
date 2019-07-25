@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey": "GatewayTaskDefinition",
+    "ParameterValue": "MyKey"
+  },
+  {
+    "ApiV1TaskDefinition": "ApiV2TaskDefinition",
+    "ParameterValue": "m1.micro"
+  },
+  {
+    "ParameterKey": "ApiV1TaskDefinition",
+    "ParameterValue": "MyKey"
+  }
+]
