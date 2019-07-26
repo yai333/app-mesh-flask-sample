@@ -99,7 +99,7 @@
         },
         {
           "name": "ENVOY_LOG_LEVEL",
-          "value": "debug"
+          "value": $ENVOY_LOG_LEVEL
         },
         {
           "name": "ENABLE_ENVOY_XRAY_TRACING",

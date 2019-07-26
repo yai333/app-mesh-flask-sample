@@ -37,6 +37,14 @@ task_def_json=$(jq -n \
     --arg ENVOY_LOG_LEVEL $envoy_log_level \
     -f "${DIR}/task-definition-gateway.json")
 
-aws --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
+task_def_arn=$(aws --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
     ecs register-task-definition \
-    --cli-input-json "$task_def_json"
+    --cli-input-json "$task_def_json" \
+    --query [taskDefinition.taskDefinitionArn] --output text
+    )
+
+aws ecs update-service  --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
+                        --cluster flask \
+                        --service gateway \
+                        --task-definition ${task_def_arn} \
+                        --desired-count 1

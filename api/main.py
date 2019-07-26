@@ -1,11 +1,20 @@
 from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 import os
 
 API_VERSION =  os.environ['API_VERSION']
 
+xray_recorder.configure(
+    sampling=False,
+    context_missing='LOG_ERROR',
+    plugins=('EC2Plugin', 'ECSPlugin'),
+    service='Flask Api %s'%(API_VERSION)
+)
 app = Flask(__name__)
 api = Api(app)
+XRayMiddleware(app, xray_recorder)
 
 TODOS = {
     'todo1': {'task': 'build an API'},
