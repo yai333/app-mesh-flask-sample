@@ -39,9 +39,10 @@ v1_task_def_json=$(jq -n \
     --arg VIRTUAL_NODE "mesh/flask-mesh/virtualNode/api-vn" \
     -f "${DIR}/task-definition.json")
 
-aws --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
+task_def_arn=$(aws --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
     ecs register-task-definition \
-    --cli-input-json "$v1_task_def_json"
+    --cli-input-json "${v1_task_def_json}" \
+    --query [taskDefinition.taskDefinitionArn] --output text)
 
 aws ecs update-service  --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
                         --cluster flask \
@@ -62,8 +63,13 @@ v2_task_def_json=$(jq -n \
     --arg VIRTUAL_NODE "mesh/flask-mesh/virtualNode/api-v2-vn" \
     -f "${DIR}/task-definition.json")
 
+v2_task_def_arn=$(aws --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
+    ecs register-task-definition \
+    --cli-input-json "${v2_task_def_json}" \
+    --query [taskDefinition.taskDefinitionArn] --output text)
+
 aws ecs update-service  --profile "${AWS_PROFILE}" --region "${AWS_DEFAULT_REGION}" \
                         --cluster flask \
                         --service api-v2 \
-                        --task-definition ${task_def_arn} \
+                        --task-definition ${v2_task_def_arn} \
                         --desired-count 1

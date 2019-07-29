@@ -1,21 +1,54 @@
-# app-mesh-flask-sample
+# Introduction
 
-eval \$(aws ecr get-login --region ap-southeast-2 --profile yiai)
+This is sample code for running App Mesh on ECS Fargate
 
-docker build -t flask-gateway .
-docker run -p 3000:3000 -e API_ENDPOINT=http://localhost --rm flask-gateway
+# Getting Started
 
-docker tag flask-gateway \$( aws ecr create-repository --repository-name flask-gateway --region ap-southeast-2 --profile yiai --query '[repository.repositoryUri]' --output text)
+## Prerequisites
 
-aws ecs register-task-definition --cli-input-json file://task_definition_gateway.json --profile yiai --region ap-southeast-2
+- Install latest [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/installing.html).
 
-docker build -t flask-api .
-docker run -p 3000:3000 -e API_VERSION=1 --rm flask-api
+- Build and push the flask api and gateway images using setup-ecr.sh from within /api/ and api-gateway/
+- Configure aws-cli to support Appmesh APIs
+- Change the profile variable and default region variable in bash files.
 
-docker tag flask-api \$( aws ecr create-repository --repository-name flask-api --region ap-southeast-2 --profile yiai --query '[repository.repositoryUri]' --output text)
+## Cloudformation template for ECS, VPC and App Mesh
 
-aws cloudformation describe-stacks --stack-name flask-sample --profile yiai --region ap-southeast-2
+- Setup VPC
 
-aws ecs register-task-definition --cli-input-json file://task_definition_v1.json --profile yiai --region ap-southeast-2
+```
+$ aws cloudformation create-stack --stack-name flask-sample --template-body file://ecs-vpc.yaml --profile YOUR_PROFILE --region YOUR_REGION
+```
 
-aws cloudformation create-stack --stack-name flask-ecs-services --template-body file://ecs-service.yaml --profile yiai --region ap-southeast-2
+- Setup Mesh
+
+```
+$ aws cloudformation create-stack --stack-name flask-app-mesh --template-body file://ecs-app-mesh.yaml --profile YOUR_PROFILE --region YOUR_REGION
+```
+
+- Setup ECS Cluster
+  Change AWS_DEFAULT_REGION and AWS_PROFILE variables in ecs-services-stack.sh, then run
+
+```
+$ bash ecs-services-stack.sh
+```
+
+## Apps
+
+Once infrastructure is in place you can deploy applications and configure mesh.
+
+## Building api
+
+In /api directory, Change AWS_DEFAULT_REGION and AWS_PROFILE variables in .sh files
+
+```
+bash setup-ecr.sh && bash setup-task-def.sh
+```
+
+## Building api
+
+In /api-gateway directory, Change AWS_DEFAULT_REGION and AWS_PROFILE variables in .sh files
+
+```
+bash setup-ecr.sh && bash setup-task-def.sh
+```

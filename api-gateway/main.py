@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core import patch_all
+from aws_xray_sdk.core.models.traceid import TraceId
 from aws_xray_sdk.core.models import http
 import requests
 import os
@@ -9,6 +10,7 @@ import json
 import logging
 
 patch_all()
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 API_ENDPOINT =  os.environ['API_ENDPOINT']
 SERVER_PORT =  os.environ['SERVER_PORT']
@@ -20,9 +22,8 @@ SERVER_PORT =  os.environ['SERVER_PORT']
 # )
 app = Flask(__name__)
 api = Api(app)
-
+traceid = TraceId().to_id()
 parser = reqparse.RequestParser()
-parser.add_argument('task')
 
 class Ping(Resource):
     def get(self):
@@ -30,26 +31,27 @@ class Ping(Resource):
 
 class TodoList(Resource):
     def __init__(self):
-        segment = xray_recorder.begin_segment('gateway_todoS')
-        segment.put_http_meta(http.URL, 'gateway.flask.sample')
+        self.segment = xray_recorder.begin_segment('gateway_todoS',traceid = traceid, sampling=1)
+        self.segment.put_http_meta(http.URL, 'gateway.flask.sample')
         logger.info("Request todos from gateway")
 
     def __del__(self):
         xray_recorder.end_segment()
 
     def get(self):
-        r = requests.get(url = '%s:%s/todos'%(API_ENDPOINT,SERVER_PORT))
+        logger.info("Request todo from gateway, parentid is %s"%(self.segment.id))
+        r = requests.get(url = '%s:%s/todos'%(API_ENDPOINT,SERVER_PORT), headers={'x-traceid': traceid, 'x-parentid':self.segment.id})
         return r.json()
 
     def post(self):
         args = parser.parse_args()
-        r = requests.post(url = '%s:%s/todos'%(API_ENDPOINT,SERVER_PORT), json=args)
+        r = requests.post(url = '%s:%s/todos'%(API_ENDPOINT,SERVER_PORT), json=args,headers={'x-traceid': traceid,'x-parentid':self.segment.id})
         return r.json(), 201
 
 class Todo(Resource):
     def __init__(self):
-        segment = xray_recorder.begin_segment('gateway_todo')
-        segment.put_http_meta(http.URL, 'gateway.flask.sample')
+        self.segment = xray_recorder.begin_segment('gateway_todo',traceid = traceid, sampling=1)
+        self.segment.put_http_meta(http.URL, 'gateway.flask.sample')
         logger.info("Request todo from gateway")
 
     def __del__(self):
@@ -57,17 +59,17 @@ class Todo(Resource):
 
 
     def get(self, todo_id):
-        r = requests.get(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id))
+        r = requests.get(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id),headers={'x-traceid': traceid,'x-parentid':self.segment.id})
         return r.json()
 
     def delete(self, todo_id):
-        r = requests.delete(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id))
+        r = requests.delete(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id),headers={'x-traceid': traceid,'x-parentid':self.segment.id})
         return r.json(), 204
 
     def put(self, todo_id):
         args = parser.parse_args()
         task = {'task': args['task']}
-        r = requests.put(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id), json=task)
+        r = requests.put(url = '%s:%s/todos/%s'%(API_ENDPOINT,SERVER_PORT,todo_id), json=task,headers={'x-traceid': traceid,'x-parentid':self.segment.id})
         return r.json(), 201
 
 api.add_resource(TodoList, '/todos')
