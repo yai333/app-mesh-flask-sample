@@ -1,6 +1,6 @@
 Description: >
   A stack for deploying containerized applications in AWS Fargate.
-  This stack runs containers in public VPC subnet, and includes a
+  This stack runs containers in public VPC subnets, and includes a
   public facing load balancer to register the services in.
 
 Parameters:
