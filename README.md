@@ -35,14 +35,14 @@ $ bash ecs-services-stack.sh
 
 ## Apps
 
-Once infrastructure is in place you can deploy applications and configure mesh.
+Once VPC and ECS cluster are setup you can deploy applications and configure mesh.
 
 ## Building api
 
 In /api directory, Change AWS_DEFAULT_REGION and AWS_PROFILE variables in .sh files
 
 ```
-bash setup-ecr.sh && bash setup-task-def.sh
+$ bash setup-ecr.sh && bash setup-task-def.sh
 ```
 
 ## Building api
@@ -50,5 +50,5 @@ bash setup-ecr.sh && bash setup-task-def.sh
 In /api-gateway directory, Change AWS_DEFAULT_REGION and AWS_PROFILE variables in .sh files
 
 ```
-bash setup-ecr.sh && bash setup-task-def.sh
+$ bash setup-ecr.sh && bash setup-task-def.sh
 ```
