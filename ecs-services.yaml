@@ -16,15 +16,15 @@ Parameters:
 
   GatewayTaskDefinition:
     Type: String
-    Description: Task definition for ColorGateway Service
+    Description: Task definition for Gateway Service
 
   ApiV1TaskDefinition:
     Type: String
-    Description: Task definition for ColorTeller White Service
+    Description: Task definition for Api v1
 
   ApiV2TaskDefinition:
     Type: String
-    Description: Task definition for ColorTeller Red Service
+    Description: Task definition for Api v2
 
   VpcCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
